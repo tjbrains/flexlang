@@ -1,0 +1,1 @@
+部分方法、函数、属性参考ECMA：https://262.ecma-international.org/
