@@ -3,5 +3,5 @@
 package flexlang
 
 type RequestNodeInfo struct {
-	Id int64 `expr:"id"`
+	Id int64 `expr:"id" json:"id"`
 }

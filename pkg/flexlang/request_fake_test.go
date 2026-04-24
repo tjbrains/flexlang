@@ -49,8 +49,9 @@ func (this *FakeRequest) URI() string {
 	return this.uri
 }
 
-func (this *FakeRequest) SetURI(uri string) {
+func (this *FakeRequest) SetURI(uri string) bool {
 	this.uri = uri
+	return true
 }
 
 func (this *FakeRequest) Host() string {

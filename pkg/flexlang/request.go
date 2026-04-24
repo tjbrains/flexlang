@@ -13,7 +13,7 @@ type Request interface {
 	URL() string
 	Path() string
 	URI() string
-	SetURI(uri string)
+	SetURI(uri string) bool
 	Host() string
 	RemoteAddr() string
 	RawRemoteAddr() string

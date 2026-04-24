@@ -2,7 +2,12 @@
 
 package flexlang
 
-import "github.com/expr-lang/expr"
+import (
+	"strings"
+	"unicode"
+
+	"github.com/expr-lang/expr"
+)
 
 type RequestVM struct {
 	ctxPool *RequestContextPool
@@ -19,20 +24,33 @@ func NewRequestVM(concurrent int) *RequestVM {
 }
 
 func (this *RequestVM) Compile(code string) (*Program, error) {
+	code = strings.TrimRightFunc(code, unicode.IsSpace)
+
+	var visitor = NewVisitor()
+
 	var ctx = this.ctxPool.Get()
-	program, err := expr.Compile(code, expr.Env(ctx), expr.Patch(NewVisitor()))
+	program, err := expr.Compile(code, expr.Env(ctx), expr.Patch(visitor))
 	this.ctxPool.Put(ctx)
+
+	if err != nil {
+		var ok bool
+		code, ok = FixError(code, err)
+		if ok {
+			program, err = expr.Compile(code, expr.Env(ctx), expr.Patch(NewVisitor()))
+		}
+	}
 
 	if err != nil {
 		return nil, err
 	}
+
 	return NewProgram(program), nil
 }
 
 func (this *RequestVM) Run(program *Program, req Request, resp Response) (any, error) {
 	var ctx = this.ctxPool.Get()
-	ctx.Ctx.Req = req
-	ctx.Ctx.Resp = resp
+	ctx.Req = req
+	ctx.Resp = resp
 	result, err := expr.Run(program.Raw(), ctx)
 	this.ctxPool.Put(ctx)
 	return result, err

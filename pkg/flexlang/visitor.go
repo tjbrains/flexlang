@@ -42,7 +42,7 @@ func (this *Visitor) Visit(node *ast.Node) {
 				idNode.Value = "NewURL"
 			}
 		default:
-			if strings.HasPrefix(calleeName, "ctx.req.") || strings.HasPrefix(calleeName, "ctx.resp.") {
+			if strings.HasPrefix(calleeName, "$req.") || strings.HasPrefix(calleeName, "$resp.") {
 				var lastIndex = strings.LastIndex(calleeName, ".")
 				if lastIndex > 0 {
 					memberNode, ok := realNode.Callee.(*ast.MemberNode)

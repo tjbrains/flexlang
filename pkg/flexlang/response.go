@@ -9,7 +9,6 @@ type Response interface {
 	DeleteHeader(name string) bool
 	Header() http.Header
 	Send(status int, body string) bool
-	SendFile(status int, path string) (int64, error)
 	SendResp(resp *http.Response) (int64, error)
 	Redirect(status int, url string) bool
 }

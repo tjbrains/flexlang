@@ -3,7 +3,9 @@
 package flexlang
 
 import (
+	"strings"
 	"sync"
+	"unicode"
 
 	"github.com/expr-lang/expr"
 )
@@ -34,13 +36,26 @@ func NewBasicVM(concurrent int) *BasicVM {
 }
 
 func (this *BasicVM) Compile(code string) (*Program, error) {
+	code = strings.TrimRightFunc(code, unicode.IsSpace)
+
+	var visitor = NewVisitor()
+
 	var ctx = this.ctxPool.Get()
-	program, err := expr.Compile(code, expr.Env(ctx), expr.Patch(NewVisitor()))
+	program, err := expr.Compile(code, expr.Env(ctx), expr.Patch(visitor))
 	this.ctxPool.Put(ctx)
+
+	if err != nil {
+		var ok bool
+		code, ok = FixError(code, err)
+		if ok {
+			program, err = expr.Compile(code, expr.Env(ctx), expr.Patch(visitor))
+		}
+	}
 
 	if err != nil {
 		return nil, err
 	}
+
 	return NewProgram(program), nil
 }
 

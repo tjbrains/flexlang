@@ -5,10 +5,8 @@ package flexlang
 type RequestContext struct {
 	BasicContext
 
-	Ctx struct {
-		Req  Request  `expr:"req"`
-		Resp Response `expr:"resp"`
-	} `expr:"ctx"`
+	Req  Request  `expr:"$req"`
+	Resp Response `expr:"$resp"`
 }
 
 func NewRequestContext() *RequestContext {

@@ -360,6 +360,56 @@ h.sum()
 	}
 }
 
+func TestBasicVM_IfElse(t *testing.T) {
+	var vm = flexlang.SharedBasicVM()
+
+	for _, code := range []string{
+		`if true {
+ 2
+}`,
+		`if true {
+ 2
+} else if false {
+	3
+}`,
+		`if true {
+	// 中文
+	2
+}`,
+	} {
+		program, err := vm.Compile(code)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		result, err := vm.Run(program)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		t.Log(result)
+	}
+}
+
+func TestBasicVM_Error(t *testing.T) {
+	var vm = flexlang.SharedBasicVM()
+
+	for _, code := range []string{
+		`a`,
+		`return`,
+		`true; return`,
+		`if true {
+	true
+}`,
+	} {
+		program, err := vm.Compile(code)
+		if err == nil {
+			_, err = vm.Run(program)
+		}
+		t.Log(code, "=>", err, "program:", program)
+	}
+}
+
 func BenchmarkBasicVM_Run(b *testing.B) {
 	var vm = flexlang.NewBasicVM(1 << 10)
 

@@ -26,7 +26,7 @@ func TestRequestVM_Req(t *testing.T) {
 	var vm = flexlang.NewRequestVM(1 << 10)
 
 	{
-		program, err := vm.Compile("ctx.req.serverInfo().id")
+		program, err := vm.Compile("$req.serverInfo().id")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -39,7 +39,7 @@ func TestRequestVM_Req(t *testing.T) {
 	}
 
 	{
-		result, err := vm.Eval("ctx.req.url()", NewFakeRequest(), nil)
+		result, err := vm.Eval("$req.url()", NewFakeRequest(), nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -47,7 +47,7 @@ func TestRequestVM_Req(t *testing.T) {
 	}
 
 	{
-		result, err := vm.Eval(`ctx.req.setHeader("Hello", "World", "Universe"); ctx.req.header()`, NewFakeRequest(), nil)
+		result, err := vm.Eval(`$req.setHeader("Hello", "World", "Universe"); $req.header()`, NewFakeRequest(), nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -85,7 +85,7 @@ func TestRequestVM_Rand(t *testing.T) {
 
 func BenchmarkRequestVM_Req(b *testing.B) {
 	var vm = flexlang.NewRequestVM(1 << 10)
-	program, err := vm.Compile("ctx.req.path()")
+	program, err := vm.Compile(`$req.path()`)
 	if err != nil {
 		b.Fatal(err)
 	}
