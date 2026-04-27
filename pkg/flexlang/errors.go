@@ -32,3 +32,20 @@ func FixError(code string, err error) (string, bool) {
 
 	return code, true
 }
+
+func TrimError(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	fileErr, ok := errors.AsType[*file.Error](err)
+	if !ok {
+		return err
+	}
+
+	if len(fileErr.Message) > 300 {
+		fileErr.Message = fileErr.Message[:100] + " [...] " + fileErr.Message[len(fileErr.Message)-100:]
+	}
+
+	return fileErr
+}

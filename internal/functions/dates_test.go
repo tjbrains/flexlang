@@ -5,7 +5,7 @@ package functions_test
 import (
 	"testing"
 
-	"github.com/tjbrains/flexlang/pkg/flexlang/functions"
+	"github.com/tjbrains/flexlang/internal/functions"
 )
 
 func TestDateFunctions_New(t *testing.T) {

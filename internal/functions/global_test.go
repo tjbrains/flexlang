@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/tjbrains/flexlang/pkg/flexlang/functions"
+	"github.com/tjbrains/flexlang/internal/functions"
 )
 
 func TestGlobalFunctions_IsNaN(t *testing.T) {

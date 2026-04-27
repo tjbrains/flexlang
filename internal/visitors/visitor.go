@@ -1,6 +1,6 @@
 // Copyright 2026 FlexCDN root@flexcdn.cn. All rights reserved. Official site: https://flexcdn.cn .
 
-package flexlang
+package visitors
 
 import (
 	"strings"
@@ -59,7 +59,18 @@ func (this *Visitor) Visit(node *ast.Node) {
 					}
 
 				}
+			} else if strings.Contains(calleeName, ".") {
+				memberNode, ok := realNode.Callee.(*ast.MemberNode)
+				if ok {
+					property, isStringNode := memberNode.Property.(*ast.StringNode)
+					if isStringNode {
+						property.Value = strings.ToUpper(property.Value[:1]) + property.Value[1:]
+					}
+				}
 			}
 		}
 	}
+}
+
+func (this *Visitor) Reset() {
 }

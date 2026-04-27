@@ -24,6 +24,20 @@ func TestBasicVM_Compile(t *testing.T) {
 	t.Log(result)
 }
 
+func TestBasicVM_CompileEmpty(t *testing.T) {
+	var vm = flexlang.SharedBasicVM()
+	program, err := vm.Compile("")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	result, err := vm.Run(program)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(result)
+}
+
 func TestBasicVM_Eval(t *testing.T) {
 	var vm = flexlang.SharedBasicVM()
 	result, err := vm.Eval(`1+1`)
@@ -407,6 +421,22 @@ func TestBasicVM_Error(t *testing.T) {
 			_, err = vm.Run(program)
 		}
 		t.Log(code, "=>", err, "program:", program)
+	}
+}
+
+func TestBasicVM_LongErr(t *testing.T) {
+	var vm = flexlang.SharedBasicVM()
+	_, err := vm.Eval(`'a' + String.length1()`)
+	if err != nil {
+		t.Log(err)
+	}
+}
+
+func TestBasicVM_ConsoleLog(t *testing.T) {
+	var vm = flexlang.SharedBasicVM()
+	_, err := vm.Eval(`console.log("Hello", "World")`)
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 

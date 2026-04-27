@@ -6,12 +6,24 @@ import "github.com/expr-lang/expr/vm"
 
 type Program struct {
 	rawProgram *vm.Program
+	isEmpty    bool
 }
 
 func NewProgram(rawProgram *vm.Program) *Program {
 	return &Program{
 		rawProgram: rawProgram,
 	}
+}
+
+func NewEmptyProgram() *Program {
+	return &Program{
+		rawProgram: nil,
+		isEmpty:    true,
+	}
+}
+
+func (this *Program) IsEmpty() bool {
+	return this.isEmpty
 }
 
 func (this *Program) Raw() *vm.Program {

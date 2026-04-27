@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/tjbrains/flexlang/pkg/flexlang/functions"
+	"github.com/tjbrains/flexlang/internal/functions"
 )
 
 func TestRegExpFunctions_Escape(t *testing.T) {

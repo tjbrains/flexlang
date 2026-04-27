@@ -1,6 +1,6 @@
 // Copyright 2026 FlexCDN root@flexcdn.cn. All rights reserved. Official site: https://flexcdn.cn .
 
-package flexlang
+package context
 
 type RequestContextPool struct {
 	ch chan *RequestContext
@@ -18,6 +18,7 @@ func NewRequestContextPool(poolSize int) *RequestContextPool {
 func (this *RequestContextPool) Get() *RequestContext {
 	select {
 	case ctx := <-this.ch:
+		ctx.Reset()
 		return ctx
 	default:
 		return NewRequestContext()

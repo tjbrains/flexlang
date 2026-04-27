@@ -1,0 +1,6 @@
+{
+  "go.goroot": "/usr/local/go",
+  "go.toolsEnvVars": {
+    "PATH": "/usr/local/bin:${env:PATH}"
+  }
+}

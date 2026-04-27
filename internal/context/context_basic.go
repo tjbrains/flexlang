@@ -1,9 +1,10 @@
 // Copyright 2026 FlexCDN root@flexcdn.cn. All rights reserved. Official site: https://flexcdn.cn .
 
-package flexlang
+package context
 
 import (
-	"github.com/tjbrains/flexlang/pkg/flexlang/functions"
+	"github.com/tjbrains/flexlang/internal/functions"
+	"github.com/tjbrains/flexlang/internal/visitors"
 )
 
 type BasicContext struct {
@@ -107,10 +108,19 @@ type BasicContext struct {
 	Crypto struct {
 		NewHMAC func(algorithm string, key string) (functions.CryptoHMACHash, error) `expr:"NewHMAC"`
 	} `expr:"Crypto"`
+
+	Console struct {
+		Log func(data ...any) bool `expr:"log"`
+	} `expr:"console"`
+
+	visitor *visitors.Visitor
+	printer func(s ...string)
 }
 
 func NewBasicContext() *BasicContext {
-	var ctx = &BasicContext{}
+	var ctx = &BasicContext{
+		visitor: visitors.NewVisitor(),
+	}
 
 	// Global
 	var globalFunctions functions.GlobalFunctions
@@ -215,5 +225,28 @@ func NewBasicContext() *BasicContext {
 	// Crypto
 	ctx.Crypto.NewHMAC = functions.NewCryptoHMAC
 
+	// Console
+	var consoleFunctions functions.ConsoleFunctions
+	ctx.Console.Log = func(data ...any) bool {
+		var printer = ctx.printer
+		if printer == nil {
+			return false
+		}
+		consoleFunctions.Log(printer, data...)
+		return true
+	}
+
 	return ctx
+}
+
+func (this *BasicContext) WithPrinter(printer func(s ...string)) {
+	this.printer = printer
+}
+
+func (this *BasicContext) Visitor() *visitors.Visitor {
+	return this.visitor
+}
+
+func (this *BasicContext) Reset() {
+	this.visitor.Reset()
 }

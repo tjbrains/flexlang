@@ -1,13 +1,12 @@
 // Copyright 2021 FlexCDN root@flexcdn.cn. All rights reserved.
 
-package flexlang_test
+package context
 
 import (
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
-
-	"github.com/tjbrains/flexlang/pkg/flexlang"
 )
 
 type FakeRequest struct {
@@ -25,14 +24,14 @@ func (this *FakeRequest) Id() string {
 	return strconv.FormatInt(time.Now().UnixMicro(), 10)
 }
 
-func (this *FakeRequest) ServerInfo() flexlang.RequestServerInfo {
-	return flexlang.RequestServerInfo{
+func (this *FakeRequest) ServerInfo() RequestServerInfo {
+	return RequestServerInfo{
 		Id: 123,
 	}
 }
 
-func (this *FakeRequest) NodeInfo() flexlang.RequestNodeInfo {
-	return flexlang.RequestNodeInfo{
+func (this *FakeRequest) NodeInfo() RequestNodeInfo {
+	return RequestNodeInfo{
 		Id: 456,
 	}
 }
@@ -52,6 +51,12 @@ func (this *FakeRequest) URI() string {
 func (this *FakeRequest) SetURI(uri string) bool {
 	this.uri = uri
 	return true
+}
+
+func (this *FakeRequest) Query() URLQuery {
+	return NewURLQuery(url.Values{
+		"name": {"Lily"},
+	})
 }
 
 func (this *FakeRequest) Host() string {

@@ -1,6 +1,6 @@
 // Copyright 2026 FlexCDN root@flexcdn.cn. All rights reserved. Official site: https://flexcdn.cn .
 
-package flexlang
+package context
 
 import (
 	"net/http"
@@ -14,6 +14,7 @@ type Request interface {
 	Path() string
 	URI() string
 	SetURI(uri string) bool
+	Query() URLQuery
 	Host() string
 	RemoteAddr() string
 	RawRemoteAddr() string

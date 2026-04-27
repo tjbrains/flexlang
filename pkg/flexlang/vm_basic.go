@@ -8,13 +8,16 @@ import (
 	"unicode"
 
 	"github.com/expr-lang/expr"
+	"github.com/tjbrains/flexlang/internal/context"
 )
 
 var shardBasicVM *BasicVM
 var basicVMOnce = sync.Once{}
 
 type BasicVM struct {
-	ctxPool *BasicContextPool
+	ctxPool *context.BasicContextPool
+
+	ctxHandler func(ctx *context.BasicContext)
 }
 
 func SharedBasicVM() *BasicVM {
@@ -31,39 +34,50 @@ func NewBasicVM(concurrent int) *BasicVM {
 	}
 
 	return &BasicVM{
-		ctxPool: NewBasicContextPool(concurrent),
+		ctxPool: context.NewBasicContextPool(concurrent),
 	}
 }
 
 func (this *BasicVM) Compile(code string) (*Program, error) {
 	code = strings.TrimRightFunc(code, unicode.IsSpace)
 
-	var visitor = NewVisitor()
+	if len(code) == 0 {
+		return NewEmptyProgram(), nil
+	}
 
 	var ctx = this.ctxPool.Get()
-	program, err := expr.Compile(code, expr.Env(ctx), expr.Patch(visitor))
+	program, err := expr.Compile(code, expr.Env(ctx), expr.Patch(ctx.Visitor()))
 	this.ctxPool.Put(ctx)
 
 	if err != nil {
 		var ok bool
 		code, ok = FixError(code, err)
 		if ok {
-			program, err = expr.Compile(code, expr.Env(ctx), expr.Patch(visitor))
+			ctx = this.ctxPool.Get()
+			program, err = expr.Compile(code, expr.Env(ctx), expr.Patch(ctx.Visitor()))
+			this.ctxPool.Put(ctx)
 		}
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, TrimError(err)
 	}
 
 	return NewProgram(program), nil
 }
 
 func (this *BasicVM) Run(program *Program) (any, error) {
+	if program.IsEmpty() {
+		return "", nil
+	}
+
 	var ctx = this.ctxPool.Get()
+	if this.ctxHandler != nil {
+		this.ctxHandler(ctx)
+	}
 	result, err := expr.Run(program.Raw(), ctx)
 	this.ctxPool.Put(ctx)
-	return result, err
+	return result, TrimError(err)
 }
 
 func (this *BasicVM) Eval(code string) (any, error) {
@@ -73,4 +87,8 @@ func (this *BasicVM) Eval(code string) (any, error) {
 	}
 
 	return this.Run(program)
+}
+
+func (this *BasicVM) WithCtxHandler(handler func(ctx *context.BasicContext)) {
+	this.ctxHandler = handler
 }
