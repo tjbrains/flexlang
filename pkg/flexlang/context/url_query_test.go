@@ -6,11 +6,11 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/tjbrains/flexlang/pkg/flexlang"
+	"github.com/tjbrains/flexlang/pkg/flexlang/context"
 )
 
 func TestRequestQuery_ToJSON(t *testing.T) {
-	var query = flexlang.NewURLQuery(url.Values{})
+	var query = context.NewURLQuery(url.Values{})
 	query.Set("name", "Lily")
 	query.Set("v", "1")
 	t.Log(query.Encode())

@@ -3,6 +3,8 @@
 package visitors
 
 import (
+	"reflect"
+	"slices"
 	"strings"
 
 	"github.com/expr-lang/expr/ast"
@@ -42,29 +44,33 @@ func (this *Visitor) Visit(node *ast.Node) {
 				idNode.Value = "NewURL"
 			}
 		default:
-			if strings.HasPrefix(calleeName, "$req.") || strings.HasPrefix(calleeName, "$resp.") {
-				var lastIndex = strings.LastIndex(calleeName, ".")
-				if lastIndex > 0 {
-					memberNode, ok := realNode.Callee.(*ast.MemberNode)
-					if ok {
-						property, isStringNode := memberNode.Property.(*ast.StringNode)
-						if isStringNode {
-							switch property.Value {
-							case "url", "uri":
-								property.Value = strings.ToUpper(property.Value)
-							default:
-								property.Value = strings.ToUpper(property.Value[:1]) + property.Value[1:]
+			if strings.Contains(calleeName, ".") {
+				memberNode, ok := realNode.Callee.(*ast.MemberNode)
+				if ok {
+					var memberNames []string
+
+					if memberNode.Node != nil {
+						var nodeType = memberNode.Node.Type()
+						switch nodeType.Kind() {
+						case reflect.Struct:
+							memberNames = this.lookupMemberNames(nodeType)
+						case reflect.Interface:
+							for method := range nodeType.Methods() {
+								memberNames = append(memberNames, method.Name)
 							}
+						default:
 						}
 					}
 
-				}
-			} else if strings.Contains(calleeName, ".") {
-				memberNode, ok := realNode.Callee.(*ast.MemberNode)
-				if ok {
+					// 转换为实际的 字段 或 方法 名
 					property, isStringNode := memberNode.Property.(*ast.StringNode)
 					if isStringNode {
-						property.Value = strings.ToUpper(property.Value[:1]) + property.Value[1:]
+						realName, found := this.lookupRealName(memberNames, property.Value)
+						if found {
+							property.Value = realName
+						} else {
+							property.Value = strings.ToUpper(property.Value[:1]) + property.Value[1:]
+						}
 					}
 				}
 			}
@@ -73,4 +79,39 @@ func (this *Visitor) Visit(node *ast.Node) {
 }
 
 func (this *Visitor) Reset() {
+}
+
+func (this *Visitor) lookupMemberNames(nodeType reflect.Type) []string {
+	var memberNames []string
+	if nodeType.Kind() == reflect.Struct {
+		for field := range nodeType.Fields() {
+			value, lookOk := field.Tag.Lookup("expr")
+			if lookOk {
+				memberNames = append(memberNames, value)
+			}
+		}
+		for method := range nodeType.Methods() {
+			memberNames = append(memberNames, method.Name)
+		}
+	}
+
+	return memberNames
+}
+
+func (this *Visitor) lookupRealName(names []string, currentName string) (result string, found bool) {
+	// 先精准查找
+	if slices.Contains(names, currentName) {
+		return currentName, true
+	}
+
+	// 转换为小写查找
+	var lowerName = strings.ToLower(currentName)
+	for _, name := range names {
+		if strings.ToLower(name) == lowerName {
+			return name, true
+		}
+	}
+
+	// 找不到原样返回
+	return currentName, false
 }

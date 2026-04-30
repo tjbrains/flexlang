@@ -31,6 +31,7 @@ func TestGlobalFunctions_ParseInt(t *testing.T) {
 	var globalFunctions functions.GlobalFunctions
 
 	assert.Equal(t, int64(0), globalFunctions.ParseInt(""))
+	assert.Equal(t, int64(0), globalFunctions.ParseInt("abc"))
 	assert.Equal(t, int64(0), globalFunctions.ParseInt("0"))
 	assert.Equal(t, int64(123), globalFunctions.ParseInt("123"))
 	assert.Equal(t, int64(123), globalFunctions.ParseInt("123.456"))
@@ -56,6 +57,7 @@ func TestGlobalFunctions_TypeOf(t *testing.T) {
 	var globalFunctions functions.GlobalFunctions
 
 	assert.Equal(t, "string", globalFunctions.TypeOf(""))
+	assert.Equal(t, "string", globalFunctions.TypeOf("abc"))
 	assert.Equal(t, "number", globalFunctions.TypeOf(123))
 	assert.Equal(t, "number", globalFunctions.TypeOf(123.0))
 	assert.Equal(t, "boolean", globalFunctions.TypeOf(true))

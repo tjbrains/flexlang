@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/tjbrains/flexlang/internal/context"
 	"github.com/tjbrains/flexlang/pkg/flexlang"
+	"github.com/tjbrains/flexlang/pkg/flexlang/context"
 )
 
 func TestRequestVM(t *testing.T) {
@@ -116,7 +116,7 @@ query.get("name")`, flexlang.RequestEnv{
 
 	{
 		result, err := vm.Eval(`
-let query = $req.query().toPair();
+let query = $req.query().toKV();
 query.name + ' ' + query['name']`, flexlang.RequestEnv{
 			Req: context.NewFakeRequest(),
 		})
@@ -140,7 +140,7 @@ jsonData`, flexlang.RequestEnv{
 
 	{
 		result, err := vm.Eval(`
-let jsonData = $req.query().toPairJSON();
+let jsonData = $req.query().toKVJSON();
 jsonData`, flexlang.RequestEnv{
 			Req: context.NewFakeRequest(),
 		})

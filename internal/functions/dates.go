@@ -42,10 +42,16 @@ import "time"
 
 type DateFunctions struct{}
 
+// New 创建新日期对象
+//
+// @internal
 func (this DateFunctions) New() Date {
 	return NewDate()
 }
 
+// NewDate 创建新日期对象
+//
+// @internal
 func NewDate() Date {
 	var now = time.Now()
 
@@ -81,13 +87,50 @@ func NewDate() Date {
 }
 
 type Date struct {
-	GetDate         func() int   `expr:"getDate"`
-	GetDay          func() int   `expr:"getDay"`
-	GetFullYear     func() int   `expr:"getFullYear"`
-	GetHours        func() int   `expr:"getHours"`
-	GetMilliseconds func() int   `expr:"getMilliseconds"`
-	GetMinutes      func() int   `expr:"getMinutes"`
-	GetMonth        func() int   `expr:"getMonth"`
-	GetSeconds      func() int   `expr:"getSeconds"`
-	GetTime         func() int64 `expr:"getTime"`
+	// 获取日期
+	//
+	// 1-31
+	GetDate func() int `expr:"getDate"`
+
+	// 获取一周中的天
+	//
+	// 0-6
+	GetDay func() int `expr:"getDay"`
+
+	// 获取年份
+	//
+	// 类似于 2006
+	GetFullYear func() int `expr:"getFullYear"`
+
+	// 获取24制小时数
+	//
+	// 类似于 1、11、16等
+	GetHours func() int `expr:"getHours"`
+
+	// 获取当前时间戳毫秒部分
+	//
+	// 比如 150、320 等
+	GetMilliseconds func() int `expr:"getMilliseconds"`
+
+	// 获取当前分钟数
+	//
+	// 类似于 1、15、45
+	GetMinutes func() int `expr:"getMinutes"`
+
+	// 获取当前月数
+	//
+	// 值为 0-11
+	GetMonth func() int `expr:"getMonth"`
+
+	// 获取当前秒数
+	//
+	// 类似于 1、10、35 等
+	GetSeconds func() int `expr:"getSeconds"`
+
+	// 获取当前时间戳
+	//
+	// 含毫秒
+	//
+	// 类似于 1777369354150
+	GetTime func() int64 `expr:"getTime"`
 }

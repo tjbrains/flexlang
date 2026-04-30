@@ -2,6 +2,9 @@
 
 package context
 
-type RequestServerInfo struct {
+type RequestNodeInfo struct {
+	// 节点ID
+	//
+	// @expr id
 	Id int64 `expr:"id" json:"id"`
 }

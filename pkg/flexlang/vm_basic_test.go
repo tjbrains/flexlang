@@ -130,12 +130,20 @@ func TestBasicVM_Math(t *testing.T) {
 		}
 		t.Log(result)
 	}
+	{
+		result, err := vm.Eval(`Math.sin(Math.PI/6)`)
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Log(result)
+	}
 }
 
 func TestBasicVM_JSON(t *testing.T) {
 	var vm = flexlang.SharedBasicVM()
 	{
-		result, err := vm.Eval(`JSON.parse('{ "a": 1, "b": 2 }')`)
+		result, err := vm.Eval(`let v = JSON.parse('{ "a": 1, "b": 2 }');
+v.a`)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -165,6 +173,18 @@ func TestBasicVM_Date(t *testing.T) {
 		result, err := vm.Eval(`let d = Date.new();
 let a = {"b":d};
 String.concat(string(a.b.getFullYear()), "-", String.padStart(string(a.b.getMonth()+1), 2, '0'), "-", string(a.b.getDate()))`)
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Log(result)
+	}
+
+	{
+		result, err := vm.Eval(`let d = Date.new();
+let year = string(d.getFullYear());
+let month = String.padStart(string(d.getMonth()+1), 2, '0');
+let day = String.padStart(string(d.getDate()), 2, '0');
+ year + "-" + month + "-" + day`)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -255,6 +275,14 @@ func TestBasicVM_Regexp2(t *testing.T) {
 } else {
 	0
 }`)
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Log(result)
+	}
+
+	{
+		result, err := vm.Eval(`NewRegExp("(\\d)(\\d)").Exec("123|456")`)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -363,8 +391,8 @@ func TestBasicVM_CryptoHMAC(t *testing.T) {
 	var vm = flexlang.SharedBasicVM()
 
 	{
-		result, err := vm.Eval(`let h = Crypto.NewHMAC("sha1", "");
-h.update("123456");
+		result, err := vm.Eval(`let h = Crypto.NewHMAC("sha1", "123456");
+h.update("ABCDEFG");
 h.sum()
 `)
 		if err != nil {
@@ -430,6 +458,32 @@ func TestBasicVM_LongErr(t *testing.T) {
 	if err != nil {
 		t.Log(err)
 	}
+}
+
+func TestBasicVM_Condition(t *testing.T) {
+	var vm = flexlang.SharedBasicVM()
+	result, err := vm.Eval(`let a = (1 == 1);
+a ? 'TRUE': 'FALSE'`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(result)
+}
+
+func TestBasicVM_Condition_IfElse(t *testing.T) {
+	var vm = flexlang.SharedBasicVM()
+	result, err := vm.Eval(`let a = Math.randN(3);
+if (a < 1) {
+	"小于1"
+} else if (a == 1) {
+	"等于1"
+} else {
+	"大于1"
+}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(result)
 }
 
 func TestBasicVM_ConsoleLog(t *testing.T) {

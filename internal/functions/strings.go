@@ -438,7 +438,7 @@ func (this StringFunctions) TrimSuffix(s string, suffix string) string {
 }
 
 func (this StringFunctions) Length(s string) int {
-	return len(s)
+	return len([]rune(s))
 }
 
 func (this StringFunctions) Sprintf(s string, args ...any) string {

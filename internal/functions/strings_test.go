@@ -13,6 +13,7 @@ func TestStringFunctions_FromCharCode(t *testing.T) {
 	var f functions.StringFunctions
 	assert.Equal(t, "", f.FromCharCode())
 	assert.Equal(t, "abc", f.FromCharCode('a', 'b', 'c'))
+	assert.Equal(t, "abc", f.FromCharCode(97, 98, 99))
 }
 
 func TestStringFunctions_At(t *testing.T) {
@@ -34,6 +35,7 @@ func TestStringFunctions_CharAt(t *testing.T) {
 	assert.Equal(t, "a", f.CharAt("abc", 0))
 	assert.Equal(t, "b", f.CharAt("abc", 1))
 	assert.Equal(t, "c", f.CharAt("abc", 2))
+	assert.Equal(t, "", f.CharAt("abc", -1))
 
 	assert.Equal(t, "", f.CharAt("abc", -11))
 	assert.Equal(t, "", f.CharAt("abc", 3))
@@ -97,17 +99,6 @@ func TestStringFunctions_IndexOf(t *testing.T) {
 	assert.Equal(t, -1, f.IndexOf("abcdefg", "cd", 10))
 }
 
-func TestStringFunctions_Match(t *testing.T) {
-	var f functions.StringFunctions
-	assert.Equal(t, []string{"abc"}, f.Match("abc", "\\w+"))
-	assert.Equal(t, []string{"ab"}, f.Match("ab|c", "\\w+"))
-	assert.Equal(t, ([]string)(nil), f.Match("()*&)", "\\w+"))
-
-	var fr functions.RegExpFunctions
-	assert.Equal(t, []string{"abc"}, f.Match("abc", fr.New("\\w+")))
-	assert.Equal(t, []string{"ab"}, f.Match("ab|c", fr.New("\\w+")))
-}
-
 func TestStringFunctions_LastIndexOf(t *testing.T) {
 	var f functions.StringFunctions
 
@@ -123,6 +114,17 @@ func TestStringFunctions_LastIndexOf(t *testing.T) {
 	assert.Equal(t, 3, f.LastIndexOf("abcdefg", "", 3))
 	assert.Equal(t, 7, f.LastIndexOf("abcdefg", "", 10))
 	assert.Equal(t, -1, f.LastIndexOf("abcdefg", "", -1))
+}
+
+func TestStringFunctions_Match(t *testing.T) {
+	var f functions.StringFunctions
+	assert.Equal(t, []string{"abc"}, f.Match("abc", "\\w+"))
+	assert.Equal(t, []string{"ab"}, f.Match("ab|c", "\\w+"))
+	assert.Equal(t, ([]string)(nil), f.Match("()*&)", "\\w+"))
+
+	var fr functions.RegExpFunctions
+	assert.Equal(t, []string{"abc"}, f.Match("abc", fr.New("\\w+")))
+	assert.Equal(t, []string{"ab"}, f.Match("ab|c", fr.New("\\w+")))
 }
 
 func TestStringFunctions_Repeat(t *testing.T) {
@@ -271,6 +273,7 @@ func TestStringFunctions_TrimPrefix(t *testing.T) {
 
 	assert.Equal(t, "cdefg", f.TrimPrefix("abcdefg", "ab"))
 	assert.Equal(t, "abcdefg", f.TrimPrefix("abcdefg", ""))
+	assert.Equal(t, "abcdefg", f.TrimPrefix("ababcdefg", "ab"))
 }
 
 func TestStringFunctions_TrimStart(t *testing.T) {
@@ -286,6 +289,7 @@ func TestStringFunctions_TrimSuffix(t *testing.T) {
 
 	assert.Equal(t, "abcde", f.TrimSuffix("abcdefg", "fg"))
 	assert.Equal(t, "abcdefg", f.TrimSuffix("abcdefg", ""))
+	assert.Equal(t, "abcdefg", f.TrimSuffix("abcdefgfg", "fg"))
 }
 
 func TestStringFunctions_Length(t *testing.T) {
@@ -293,10 +297,11 @@ func TestStringFunctions_Length(t *testing.T) {
 
 	assert.Equal(t, 0, f.Length(""))
 	assert.Equal(t, 3, f.Length("abc"))
+	assert.Equal(t, 5, f.Length("abc中文"))
 }
 
 func TestStringFunctions_Sprintf(t *testing.T) {
 	var f functions.StringFunctions
 
-	t.Log(f.Sprintf("abc %d, %.2f", 1, 2.3456))
+	t.Log(f.Sprintf("%s %d, %.2f", "abc", 1, 2.3456))
 }

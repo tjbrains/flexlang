@@ -9,10 +9,10 @@ import (
 )
 
 func TestCryptoHMAC(t *testing.T) {
-	h, err := functions.NewCryptoHMAC("sha1", "")
+	h, err := functions.NewCryptoHMAC("sha1", "123456")
 	if err != nil {
 		t.Fatal(err)
 	}
-	h.Update("123456")
+	h.Update("ABCDEFG")
 	t.Log(h.Sum())
 }

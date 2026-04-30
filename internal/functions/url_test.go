@@ -21,5 +21,6 @@ func TestURL(t *testing.T) {
 	assert.Equal(t, "https", u.Scheme)
 	assert.Equal(t, "/docs", u.Path)
 	assert.Equal(t, "", u.Opaque)
+	t.Log(u.User)
 	assert.True(t, len(u.User) > 0)
 }

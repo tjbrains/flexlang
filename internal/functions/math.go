@@ -4,6 +4,7 @@ package functions
 
 import (
 	"math"
+	"math/bits"
 	"math/rand/v2"
 )
 
@@ -17,6 +18,13 @@ const (
 )
 
 // 已忽略的函数：
+//  - Math.acos ( x )
+//  - Math.acosh ( x )
+//  - Math.asin ( x )
+//  - Math.asinh ( x )
+//  - Math.atan ( x)
+//  - Math.asinh ( x )
+//  - Math.atan2 ( y, x )
 //  - Math.fround ( x )
 //  - Math.f16round ( x )
 //  - Math.imul ( x, y )
@@ -24,6 +32,34 @@ const (
 //  - Math.min ( ...args )
 
 type MathFunctions struct{}
+
+func (this MathFunctions) Abs(x float64) float64 {
+	return math.Abs(x)
+}
+
+func (this MathFunctions) Cbrt(x float64) float64 {
+	return math.Cbrt(x)
+}
+
+func (this MathFunctions) Ceil(x float64) int64 {
+	return int64(math.Ceil(x))
+}
+
+func (this MathFunctions) Clz32(x uint32) int {
+	return bits.LeadingZeros32(x)
+}
+
+func (this MathFunctions) Cos(x float64) float64 {
+	return math.Cos(x)
+}
+
+func (this MathFunctions) Cosh(x float64) float64 {
+	return math.Cosh(x)
+}
+
+func (this MathFunctions) Exp(x float64) float64 {
+	return math.Exp(x)
+}
 
 func (this MathFunctions) Expm1(x float64) float64 {
 	return math.Expm1(x)

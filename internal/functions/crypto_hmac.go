@@ -16,10 +16,16 @@ import (
 type CryptoHMACHash struct {
 	hash hash.Hash
 
+	// 更新数据
 	Update func(data string) bool `expr:"update"`
-	Sum    func() string          `expr:"sum"`
+
+	// 计算摘要
+	Sum func() string `expr:"sum"`
 }
 
+// NewCryptoHMAC 创建HMAC摘要对象
+//
+// @internal
 func NewCryptoHMAC(algorithm string, key string) (CryptoHMACHash, error) {
 	var h hash.Hash
 	switch algorithm {

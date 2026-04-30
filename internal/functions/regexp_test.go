@@ -51,3 +51,11 @@ func TestRegExpFunctions_Exec(t *testing.T) {
 	t.Log(regexpFunctions.New(`\d+`).Exec("123|456"))
 	t.Log(regexpFunctions.New(`(\d)(\d)`).Exec("123|456"))
 }
+
+func TestRegExpFunctions_Split(t *testing.T) {
+	var regexpFunctions functions.RegExpFunctions
+
+	t.Log(regexpFunctions.New("A").Split("123A456A789"))
+	t.Log(regexpFunctions.New("A").Split("123456789"))
+	t.Log(regexpFunctions.New("\\|").Split("123|456|789"))
+}

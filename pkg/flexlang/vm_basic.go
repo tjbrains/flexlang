@@ -8,7 +8,7 @@ import (
 	"unicode"
 
 	"github.com/expr-lang/expr"
-	"github.com/tjbrains/flexlang/internal/context"
+	"github.com/tjbrains/flexlang/pkg/flexlang/context"
 )
 
 var shardBasicVM *BasicVM
