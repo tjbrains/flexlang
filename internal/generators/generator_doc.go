@@ -11,6 +11,8 @@ import (
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/tjbrains/flexlang/internal/utils"
 )
 
 var exprRegex = regexp.MustCompile(`expr:"([\\$\w]+)"`)
@@ -33,10 +35,7 @@ func NewDocGenerator() *DocGenerator {
 }
 
 func (this *DocGenerator) Run() error {
-	rootDir, err := os.Getwd()
-	if err != nil {
-		return err
-	}
+	var rootDir = utils.RootDir()
 
 	var mdFile = rootDir + "/docs/references.md"
 	fp, err := os.OpenFile(mdFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
