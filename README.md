@@ -2,7 +2,7 @@
 
 An expression language based on ExprLang.
 
-~~~golang
+~~~go
 var vm = flexlang.SharedBasicVM()
 program, err := vm.Compile(`Math.randN(10)`)
 if err != nil {
