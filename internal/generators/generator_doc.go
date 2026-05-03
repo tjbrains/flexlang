@@ -135,6 +135,19 @@ func (this *DocGenerator) Run() error {
 	}
 
 	{
+		err = this.write("## HTTPHeader对象\n")
+		if err != nil {
+			return err
+		}
+
+		var path = rootDir + "/pkg/flexlang/context/http_header.go"
+		err = this.readFile(path, "[object]")
+		if err != nil {
+			return err
+		}
+	}
+
+	{
 		err = this.write("## RequestNodeInfo对象\n")
 		if err != nil {
 			return err

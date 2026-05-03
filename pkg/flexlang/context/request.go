@@ -2,10 +2,6 @@
 
 package context
 
-import (
-	"net/http"
-)
-
 type Request interface {
 	// Id 获取当前请求ID
 	//
@@ -109,7 +105,7 @@ type Request interface {
 	Cookie(name string) string
 
 	// Header 读取所有请求发送的报头
-	Header() http.Header
+	Header() HTTPHeader
 
 	// SetHeader 设置请求报头
 	//

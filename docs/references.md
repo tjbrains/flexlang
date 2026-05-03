@@ -1022,6 +1022,89 @@ Base64 解码
 Base64.decode("SGVsbG8sIFdvcmxkIQ==") // => "Hello, World!"
 ~~~
 
+## NetIP
+> NetIP
+
+IP地址相关操作
+
+### NetIP.isValid
+> NetIP.isValid(ip string) bool
+
+判断IP地址是否有效
+
+示例：
+~~~javascript
+NetIP.isValid("127.0.0.1") // => true
+NetIP.isValid("::1") // => true
+NetIP.isValid("127.0.0.1.1") // => false
+NetIP.isValid("::1.1") // => false
+NetIP.isValid("") // => false
+NetIP.isValid("127.0.0.256") // => false
+~~~
+
+### NetIP.isIPv4
+> NetIP.isIPv4(ip string) bool
+
+判断IP地址是否为IPv4地址
+
+示例：
+~~~javascript
+NetIP.isIPv4("127.0.0.1") // => true
+NetIP.isIPv4("::1") // => false
+~~~
+
+### NetIP.isIPv6
+> NetIP.isIPv6(ip string) bool
+
+判断IP地址是否为IPv6地址
+
+示例：
+~~~javascript
+NetIP.isIPv6("::1") // => true
+NetIP.isIPv6("127.0.0.1") // => false
+~~~
+
+### NetIP.isBetween
+> NetIP.isBetween(ip string, startIP string, endIP string) bool
+
+判断IP地址是否在指定的范围内
+
+示例：
+~~~javascript
+NetIP.isBetween("127.0.0.1", "127.0.0.1", "127.0.0.2") // => true
+NetIP.isBetween("127.0.0.1", "127.0.0.2", "127.0.0.3") // => false
+NetIP.isBetween("127.0.1.2", "127.0.0.2", "127.0.2.3") // => true
+~~~
+
+### NetIP.isInCIDR
+> NetIP.isInCIDR(ip string, cidr string) bool
+
+判断IP地址是否在指定的CIDR范围内
+
+示例：
+~~~javascript
+NetIP.isInCIDR("127.0.0.1", "127.0.0.0/24") // => true
+NetIP.isInCIDR("127.0.0.1", "127.0.0.0/16") // => true
+NetIP.isInCIDR("127.0.1.2", "127.0.0.0/8") // => true
+NetIP.isInCIDR("127.0.1.1", "127.0.0.0/32") // => false
+~~~
+
+### NetIP.isInRanges
+> NetIP.isInRanges(ip string, ranges \[]\[2]string) bool
+
+判断IP地址是否在指定的范围内
+
+示例：
+~~~javascript
+NetIP.isInRanges("127.0.0.1", [["127.0.0.0", "127.0.0.255"]]) // => true
+NetIP.isInRanges("127.0.0.1", [["127.0.0.0", "127.0.0.127"]]) // => true
+NetIP.isInRanges("127.0.1.2", [
+		["127.0.0.0", "127.0.0.255"],
+		["127.0.1.0", "127.0.1.255"],
+		["127.0.2.0", "127.0.2.255"]
+]) // => true
+~~~
+
 ## Crypto
 > Crypto
 
@@ -1169,7 +1252,7 @@ console.log("Hello", "World")
 读取请求发送的Cookie值
 
 ### [object].header
-> [object].header() http.Header
+> [object].header() HTTPHeader
 
 读取所有请求发送的报头
 
@@ -1244,7 +1327,7 @@ $req.format("${geo.province.name}") // => 类似于“湖北省”
 删除响应报头
 
 ### [object].header
-> [object].header() http.Header
+> [object].header() HTTPHeader
 
 读取所有响应报头
 
@@ -1375,6 +1458,47 @@ NewRegExp("A").Split("123A456A789")  // => ["123", "456", "789"]
 NewRegExp("A").Split("123456789") // => ["123456789"]
 NewRegExp("\\|").Split("123|456|789") // => ["123", "456", "789"]
 ~~~
+
+## HTTPHeader对象
+### [object].add
+> [object].add(key string, value string)
+
+添加报头
+
+### [object].set
+> [object].set(key, value string)
+
+设置报头
+
+### [object].get
+> [object].get(key string) string
+
+读取报头值
+
+示例：
+~~~javascript
+$resp.header().get("User-Agent") // => Mozilla/5.0 ... Safari/537.36
+~~~
+
+### [object].values
+> [object].values(key string) \[]string
+
+读取报头所有值
+
+### [object].delete
+> [object].delete(key string)
+
+删除报头
+
+### [object].has
+> [object].has(key string) bool
+
+判断是否包含某个报头
+
+### [object].toJSON
+> [object].toJSON() string
+
+将报头转换为JSON
 
 ## RequestNodeInfo对象
 ### [object].id

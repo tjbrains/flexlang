@@ -347,6 +347,45 @@ func TestBasicVM_Base64(t *testing.T) {
 	}
 }
 
+func TestBasicVM_NetIP(t *testing.T) {
+	var vm = flexlang.SharedBasicVM()
+	{
+		result, err := vm.Eval(`NetIP.isValid("127.0.0.1")`)
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Log(result)
+	}
+
+	{
+		result, err := vm.Eval(`NetIP.isIPv4("127.0.0.1")`)
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Log(result)
+	}
+
+	{
+		result, err := vm.Eval(`NetIP.isIPv6("::1")`)
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Log(result)
+	}
+
+	{
+		result, err := vm.Eval(`NetIP.isInRanges("127.0.1.100", [
+		["127.0.0.0", "127.0.0.255"],
+		["127.0.1.0", "127.0.1.255"]
+		])`)
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Log(result)
+		assert.Equal(t, true, result)
+	}
+}
+
 func TestBasicVM_Sprintf(t *testing.T) {
 	var vm = flexlang.SharedBasicVM()
 

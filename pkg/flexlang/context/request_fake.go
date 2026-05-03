@@ -12,7 +12,7 @@ import (
 type FakeRequest struct {
 	host       string
 	remoteAddr string
-	header     http.Header
+	header     HTTPHeader
 	uri        string
 }
 
@@ -102,13 +102,13 @@ func (this *FakeRequest) Cookie(name string) string {
 	return "cookie"
 }
 
-func (this *FakeRequest) Header() http.Header {
+func (this *FakeRequest) Header() HTTPHeader {
 	return this.header
 }
 
 func (this *FakeRequest) SetHeader(name string, values ...string) bool {
 	if this.header == nil {
-		this.header = http.Header{}
+		this.header = HTTPHeader{}
 	}
 	this.header[name] = values
 

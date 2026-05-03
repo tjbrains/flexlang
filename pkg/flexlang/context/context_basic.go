@@ -844,6 +844,76 @@ type BasicContext struct {
 		Decode func(s string) string `expr:"decode"`
 	} `expr:"Base64"`
 
+	// IP地址相关操作
+	NetIP struct {
+		// 判断IP地址是否有效
+		//
+		// 示例：
+		// ~~~javascript
+		// NetIP.isValid("127.0.0.1") // => true
+		// NetIP.isValid("::1") // => true
+		// NetIP.isValid("127.0.0.1.1") // => false
+		// NetIP.isValid("::1.1") // => false
+		// NetIP.isValid("") // => false
+		// NetIP.isValid("127.0.0.256") // => false
+		// ~~~
+		IsValid func(ip string) bool `expr:"isValid"`
+
+		// 判断IP地址是否为IPv4地址
+		//
+		// 示例：
+		// ~~~javascript
+		// NetIP.isIPv4("127.0.0.1") // => true
+		// NetIP.isIPv4("::1") // => false
+		// ~~~
+		IsIPv4 func(ip string) bool `expr:"isIPv4"`
+
+		// 判断IP地址是否为IPv6地址
+		//
+		// 示例：
+		// ~~~javascript
+		// NetIP.isIPv6("::1") // => true
+		// NetIP.isIPv6("127.0.0.1") // => false
+		// ~~~
+		IsIPv6 func(ip string) bool `expr:"isIPv6"`
+
+		// 判断IP地址是否在指定的范围内
+		//
+		// 示例：
+		// ~~~javascript
+		// NetIP.isBetween("127.0.0.1", "127.0.0.1", "127.0.0.2") // => true
+		// NetIP.isBetween("127.0.0.1", "127.0.0.2", "127.0.0.3") // => false
+		// NetIP.isBetween("127.0.1.2", "127.0.0.2", "127.0.2.3") // => true
+		// ~~~
+		IsBetween func(ip string, startIP string, endIP string) bool `expr:"isBetween"`
+
+		// 判断IP地址是否在指定的CIDR范围内
+		//
+		// 示例：
+		// ~~~javascript
+		// NetIP.isInCIDR("127.0.0.1", "127.0.0.0/24") // => true
+		// NetIP.isInCIDR("127.0.0.1", "127.0.0.0/16") // => true
+		// NetIP.isInCIDR("127.0.1.2", "127.0.0.0/8") // => true
+		// NetIP.isInCIDR("127.0.1.1", "127.0.0.0/32") // => false
+		// ~~~
+		IsInCIDR func(ip string, cidr string) bool `expr:"isInCIDR"`
+
+		// 判断IP地址是否在指定的范围内
+		//
+		// 示例：
+		// ~~~javascript
+		// NetIP.isInRanges("127.0.0.1", [["127.0.0.0", "127.0.0.255"]]) // => true
+		// NetIP.isInRanges("127.0.0.1", [["127.0.0.0", "127.0.0.127"]]) // => true
+		// NetIP.isInRanges("127.0.1.2", [
+		// 		["127.0.0.0", "127.0.0.255"],
+		// 		["127.0.1.0", "127.0.1.255"],
+		// 		["127.0.2.0", "127.0.2.255"]
+		// ]) // => true
+		// ~~~
+		// @prototype isInRanges(ip string, ranges [][2]string) bool
+		IsInRanges func(ip string, ranges []any) bool `expr:"isInRanges"`
+	} `expr:"NetIP"`
+
 	// 加密相关操作
 	Crypto struct {
 		// 创建HMAC摘要器
@@ -988,6 +1058,15 @@ func NewBasicContext() *BasicContext {
 	var base64Functions functions.Base64Functions
 	ctx.Base64.Encode = base64Functions.Encode
 	ctx.Base64.Decode = base64Functions.Decode
+
+	// NetIP
+	var netIPFunctions functions.NetIPFunctions
+	ctx.NetIP.IsValid = netIPFunctions.IsValid
+	ctx.NetIP.IsIPv4 = netIPFunctions.IsIPv4
+	ctx.NetIP.IsIPv6 = netIPFunctions.IsIPv6
+	ctx.NetIP.IsBetween = netIPFunctions.IsBetween
+	ctx.NetIP.IsInCIDR = netIPFunctions.IsInCIDR
+	ctx.NetIP.IsInRanges = netIPFunctions.IsInRanges
 
 	// Crypto
 	ctx.Crypto.NewHMAC = functions.NewCryptoHMAC

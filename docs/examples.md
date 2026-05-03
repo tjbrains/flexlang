@@ -100,6 +100,31 @@ if (String.indexOf($req.format("${geo.province.name}"), "北京") < 0) {
 }
 ~~~
 
+## 只允许某个IP范围访问
+比如我们只允许`192.168.1.100 - 192.168.1.255`、`192.168.2.100 - 192.168.2.255`之间的IP访问：
+~~~javascript
+if (!NetIP.isInRanges($req.remoteAddr(), [
+	["192.168.1.100", "192.168.1.255"],
+	["192.168.2.100", "192.168.2.255"]
+])) {
+	$resp.send(403, "403 Forbidden")
+} else {
+	true
+}
+~~~
+
+## 根据条件修改响应Header
+可以使用`$resp.setHeader()`方法来修改响应Header：
+~~~javascript
+// 查找匹配 /webhook 的请求路径
+if ($req.path() == "/webhook") {
+	// 设置响应Header
+	$resp.setHeader("Hello", "World")
+} else {
+  true
+}
+~~~
+
 ## 重写URL
 
 当用户访问`/hello`时我们希望访问转移到`/world`，而且不需要跳转：

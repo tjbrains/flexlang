@@ -12,7 +12,7 @@ type Response interface {
 	DeleteHeader(name string) bool
 
 	// Header 读取所有响应报头
-	Header() http.Header
+	Header() HTTPHeader
 
 	// Send 发送内容
 	//
