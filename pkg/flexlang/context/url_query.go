@@ -103,7 +103,7 @@ func (this URLQuery) ToKV() map[string]string {
 //
 // 其中每个参数值对应一个字符串
 //
-// @expr ToKVJSON
+// @expr toKVJSON
 func (this URLQuery) ToKVJSON() string {
 	data, _ := json.Marshal(this.ToKV())
 	return string(data)

@@ -3,6 +3,7 @@
 package generators
 
 import (
+	"encoding/json"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -28,6 +29,9 @@ type Doc struct {
 
 type DocGenerator struct {
 	docWriter io.Writer
+	preNode   *ast.Ident
+
+	autoCompleteCodes []map[string]string
 }
 
 func NewDocGenerator() *DocGenerator {
@@ -199,6 +203,16 @@ func (this *DocGenerator) Run() error {
 		}
 	}
 
+	// auto complete
+	autoCompleteJSON, err := json.Marshal(this.autoCompleteCodes)
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile(rootDir+"/docs/auto-complete.json", autoCompleteJSON, 0666)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -229,7 +243,11 @@ func (this *DocGenerator) readFile(path string, objName string) error {
 
 		it, isIt := subNode.(*ast.InterfaceType)
 		if isIt {
-			err = this.processInterfaceType(it, fileSet, fileData, objName)
+			var parentName = ""
+			if this.preNode != nil {
+				parentName = this.preNode.Name
+			}
+			err = this.processInterfaceType(it, fileSet, fileData, objName, parentName)
 			if err != nil {
 				lastErr = err
 			}
@@ -244,6 +262,11 @@ func (this *DocGenerator) readFile(path string, objName string) error {
 			}
 		}
 
+		in, isIn := subNode.(*ast.Ident)
+		if isIn {
+			this.preNode = in
+		}
+
 		return true
 	})
 
@@ -254,6 +277,11 @@ func (this *DocGenerator) processFuncDecl(fd *ast.FuncDecl, fileSet *token.FileS
 	var ft = fd.Type
 	if ft == nil {
 		return nil
+	}
+
+	var typeName string
+	if fd.Recv != nil && len(fd.Recv.List) > 0 && fd.Recv.List[0].Type != nil {
+		typeName = string(fileData[fileSet.Position(fd.Recv.List[0].Type.Pos()).Offset:fileSet.Position(fd.Recv.List[0].Type.End()).Offset])
 	}
 
 	// 跳过内部调用的
@@ -287,6 +315,10 @@ func (this *DocGenerator) processFuncDecl(fd *ast.FuncDecl, fileSet *token.FileS
 		var def = string(fileData[start:end])
 		prototype = funcName + def
 	}
+
+	// auto complete
+	this.createAutoComplete(typeName, fullName, true, prototype, docText)
+
 	prototype = this.escapeForMarkdown(prototype)
 
 	// write name
@@ -320,7 +352,7 @@ func (this *DocGenerator) processTypeSpec(ts *ast.TypeSpec, fileSet *token.FileS
 	if !ok {
 		return nil
 	}
-	var processErr = this.processStructType(fileSet, fileData, st, parentName, objName)
+	var processErr = this.processStructType(ts.Name.Name, fileSet, fileData, st, parentName, objName)
 	if processErr != nil {
 		return processErr
 	}
@@ -328,7 +360,7 @@ func (this *DocGenerator) processTypeSpec(ts *ast.TypeSpec, fileSet *token.FileS
 	return nil
 }
 
-func (this *DocGenerator) processInterfaceType(it *ast.InterfaceType, fileSet *token.FileSet, fileData []byte, objName string) error {
+func (this *DocGenerator) processInterfaceType(it *ast.InterfaceType, fileSet *token.FileSet, fileData []byte, objName string, typeName string) error {
 	for _, field := range it.Methods.List {
 		var fieldName = field.Names[0].String()
 		if fieldName[0] < 'A' && fieldName[0] > 'Z' {
@@ -366,6 +398,13 @@ func (this *DocGenerator) processInterfaceType(it *ast.InterfaceType, fileSet *t
 				}
 			}
 		}
+
+		// auto complete
+		if typeName == "" {
+			typeName = objName
+		}
+		this.createAutoComplete(typeName, fullName, true, prototype, docText)
+
 		prototype = this.escapeForMarkdown(prototype)
 
 		// write name
@@ -394,7 +433,7 @@ func (this *DocGenerator) processInterfaceType(it *ast.InterfaceType, fileSet *t
 	return nil
 }
 
-func (this *DocGenerator) processStructType(fileSet *token.FileSet, fileData []byte, st *ast.StructType, parentName string, objName string) error {
+func (this *DocGenerator) processStructType(typeName string, fileSet *token.FileSet, fileData []byte, st *ast.StructType, parentName string, objName string) error {
 	for _, field := range st.Fields.List {
 		if len(field.Names) == 0 {
 			continue
@@ -420,11 +459,12 @@ func (this *DocGenerator) processStructType(fileSet *token.FileSet, fileData []b
 
 			var prototypeSubmatch = prototypeDocRegex.FindStringSubmatch(docText)
 			var prototype string
+			funcType, isFuncType := field.Type.(*ast.FuncType)
+
 			if len(prototypeSubmatch) > 0 {
 				prototype = prototypeSubmatch[1]
 				docText = strings.ReplaceAll(docText, prototypeSubmatch[0], "") // remove prototype definition
 			} else {
-				funcType, isFuncType := field.Type.(*ast.FuncType)
 				if isFuncType {
 					start, end := fileSet.Position(funcType.Pos()).Offset, fileSet.Position(funcType.End()).Offset
 					prototype = strings.ReplaceAll(string(fileData[start:end]), "functions.", "")
@@ -434,6 +474,10 @@ func (this *DocGenerator) processStructType(fileSet *token.FileSet, fileData []b
 					prototype = fieldName
 				}
 			}
+
+			// auto complete
+			this.createAutoComplete(typeName, fullName, isFuncType, prototype, docText)
+
 			prototype = this.escapeForMarkdown(prototype)
 
 			// write name
@@ -461,7 +505,7 @@ func (this *DocGenerator) processStructType(fileSet *token.FileSet, fileData []b
 
 			fieldSt, fieldOk := field.Type.(*ast.StructType)
 			if fieldOk {
-				err = this.processStructType(fileSet, fileData, fieldSt, fullName, objName)
+				err = this.processStructType(typeName, fileSet, fileData, fieldSt, fullName, objName)
 				if err != nil {
 					return err
 				}
@@ -493,4 +537,32 @@ func (this *DocGenerator) escapeForMarkdown(s string) string {
 	s = strings.ReplaceAll(s, "[", "\\[")
 	s = strings.ReplaceAll(s, "`", "\\`")
 	return s
+}
+
+func (this *DocGenerator) createAutoComplete(typeName string, fullName string, isMethod bool, prototype string, docText string) {
+	// [object]
+	var apply = strings.ReplaceAll(fullName, "[object].", "")
+	fullName = strings.ReplaceAll(fullName, "[object]", "["+typeName+"]")
+
+	// doc
+	docText = strings.TrimSpace(docText)
+	docText = strings.ReplaceAll(docText, "~~~javascript", "~~~")
+
+	if isMethod {
+		this.autoCompleteCodes = append(this.autoCompleteCodes, map[string]string{
+			"label":  fullName,
+			"type":   "variable",
+			"apply":  apply + "()",
+			"detail": prototype,
+			"info":   docText,
+		})
+	} else {
+		this.autoCompleteCodes = append(this.autoCompleteCodes, map[string]string{
+			"label":  fullName,
+			"type":   "variable",
+			"apply":  apply,
+			"detail": prototype,
+			"info":   docText,
+		})
+	}
 }

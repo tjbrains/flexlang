@@ -1622,7 +1622,7 @@ ToJSON 将所有参数值转为为JSON
 
 ToKV 将所有参数值转换为键值对
 
-### [object].ToKVJSON
+### [object].toKVJSON
 > [object].toKVJSON() string
 
 ToKVJSON 将所有参数值转换为键值对JSON

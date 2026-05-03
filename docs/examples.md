@@ -113,6 +113,19 @@ if (!NetIP.isInRanges($req.remoteAddr(), [
 }
 ~~~
 
+## 在WAF中放行某个IP
+可以使用`$req.allow()`放行某个IP，从而不受WAF的限制：
+~~~javascript
+if (NetIP.isInRanges($req.remoteAddr(), [
+	["192.168.1.100", "192.168.1.255"],
+	["202.96.0.1", "202.96.0.100"]
+])) {
+	$req.allow()
+} else {
+	true
+}
+~~~
+
 ## 根据条件修改响应Header
 可以使用`$resp.setHeader()`方法来修改响应Header：
 ~~~javascript
