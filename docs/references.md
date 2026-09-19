@@ -55,7 +55,7 @@ parseFloat("123.456") // => 123.456
 ~~~
 
 ## parseInt
-> parseInt(s string\[, radix int]) int64
+> parseInt(s any\[, radix int]) int64
 
 将字符串按进制解析为整数
 

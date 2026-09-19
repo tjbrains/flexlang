@@ -44,8 +44,8 @@ type BasicContext struct {
 	// parseInt("123") // => 123
 	// parseInt("123.456") // => 123
 	// ~~~
-	// @prototype parseInt(s string[, radix int]) int64
-	ParseInt func(s string, radix ...int) int64 `expr:"parseInt"`
+	// @prototype parseInt(s any[, radix int]) int64
+	ParseInt func(s any, radix ...int) int64 `expr:"parseInt"`
 
 	// URI组件解码
 	//

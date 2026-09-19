@@ -41,18 +41,56 @@ func (this GlobalFunctions) ParseFloat(s string) float64 {
 	return f
 }
 
-func (this GlobalFunctions) ParseInt(s string, radix ...int) int64 {
-	if len(s) == 0 {
+func (this GlobalFunctions) ParseInt(s any, radix ...int) int64 {
+	var str string
+
+	switch x := s.(type) {
+	case string:
+		str = x
+	case int:
+		return int64(x)
+	case int8:
+		return int64(x)
+	case int16:
+		return int64(x)
+	case int32:
+		return int64(x)
+	case int64:
+		return x
+	case uint:
+		return int64(x)
+	case uint8:
+		return int64(x)
+	case uint16:
+		return int64(x)
+	case uint32:
+		return int64(x)
+	case uint64:
+		return int64(x) // maybe overflow
+	case float32:
+		return int64(x)
+	case float64:
+		return int64(x)
+	case bool:
+		if x {
+			return 1
+		}
+		return 0
+	default:
 		return 0
 	}
 
-	var dotIndex = strings.Index(s, ".")
+	if len(str) == 0 {
+		return 0
+	}
+
+	var dotIndex = strings.Index(str, ".")
 	if dotIndex >= 0 {
-		s = s[:dotIndex]
+		str = str[:dotIndex]
 	}
 
 	if len(radix) == 0 {
-		result, _ := strconv.ParseInt(s, 10, 64)
+		result, _ := strconv.ParseInt(str, 10, 64)
 		return result
 	}
 
@@ -60,7 +98,7 @@ func (this GlobalFunctions) ParseInt(s string, radix ...int) int64 {
 	if radix0 <= 0 {
 		radix0 = 10
 	}
-	result, _ := strconv.ParseInt(s, radix0, 64)
+	result, _ := strconv.ParseInt(str, radix0, 64)
 	return result
 }
 

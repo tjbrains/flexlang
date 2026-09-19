@@ -30,11 +30,19 @@ func TestGlobalFunctions_ParseFloat(t *testing.T) {
 func TestGlobalFunctions_ParseInt(t *testing.T) {
 	var globalFunctions functions.GlobalFunctions
 
-	assert.Equal(t, int64(0), globalFunctions.ParseInt(""))
-	assert.Equal(t, int64(0), globalFunctions.ParseInt("abc"))
-	assert.Equal(t, int64(0), globalFunctions.ParseInt("0"))
-	assert.Equal(t, int64(123), globalFunctions.ParseInt("123"))
-	assert.Equal(t, int64(123), globalFunctions.ParseInt("123.456"))
+	var a = assert.New(t)
+
+	a.Equal(int64(0), globalFunctions.ParseInt(""))
+	a.Equal(int64(0), globalFunctions.ParseInt("abc"))
+	a.Equal(int64(0), globalFunctions.ParseInt("0"))
+	a.Equal(int64(123), globalFunctions.ParseInt("123"))
+	a.Equal(int64(123), globalFunctions.ParseInt("123.456"))
+	a.Equal(int64(1), globalFunctions.ParseInt(int(1)))
+	a.Equal(int64(12345), globalFunctions.ParseInt(uint16(12345)))
+	a.Equal(int64(12345), globalFunctions.ParseInt(float32(12345.456)))
+	a.Equal(int64(12345), globalFunctions.ParseInt(float64(12345.456)))
+	a.Equal(int64(1), globalFunctions.ParseInt(true))
+	a.Equal(int64(0), globalFunctions.ParseInt(false))
 }
 
 func TestGlobalFunctions_DecodeURIComponent(t *testing.T) {
